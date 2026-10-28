@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Nexus Study — Tutor IA & NotebookLM Grounded Engine</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="/css/style.css?v=google_nlm_v2">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" type="image/svg+xml" href="/icons/icon-192.svg">
+  
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#000000">
+</head>
+<body class="apple-theme">
+  <div class="app-layout">
+    
+    <!-- Topbar Autêntica Google NotebookLM (Material 3 / Google AI) -->
+    <header class="topbar nlm-topbar">
+      <!-- 1. Esquerda: Marca Oficial (Galeria) ou Navegação de Caderno (Workspace) -->
+      <div class="nlm-topbar-left">
+        <!-- Modo Galeria: Logo Oficial Gemini NotebookLM -->
+        <div id="nlm-header-gallery-brand" class="nlm-brand-group" onclick="window.abrirModalLandingPage && window.abrirModalLandingPage()" title="Ver Apresentação Oficial">
+          <div class="nlm-gemini-arch-logo">
+            <svg width="26" height="26" viewBox="0 0 28 28" fill="none">
+              <path d="M14 2C7.37 2 2 7.37 2 14v10a2 2 0 002 2h3a2 2 0 002-2v-7a2 2 0 00-2-2H4.2A11.97 11.97 0 0114 4.1 11.97 11.97 0 0123.8 13H21a2 2 0 00-2 2v7a2 2 0 002 2h3a2 2 0 002-2V14C26 7.37 20.63 2 14 2z" fill="url(#gemini_top_grad)"/>
+              <defs>
+                <linearGradient id="gemini_top_grad" x1="2" y1="2" x2="26" y2="26" gradientUnits="userSpaceOnUse">
+                  <stop stop-color="#4285F4"/>
+                  <stop offset="0.5" stop-color="#9B72CF"/>
+                  <stop offset="1" stop-color="#D96570"/>
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+          <span class="nlm-brand-title-text">NotebookLM</span>
+        </div>
+
+        <!-- Modo Workspace: Botão Voltar + Cápsula do Caderno Ativo -->
+        <div id="nlm-header-workspace-brand" class="nlm-workspace-nav" style="display: none;">
+          <button id="btn-voltar-gallery" class="nlm-icon-btn nlm-back-btn" title="Voltar a todos os cadernos">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4">
+              <line x1="19" y1="12" x2="5" y2="12"></line>
+              <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+          </button>
+          <button id="btn-toggle-sidebar" class="nlm-notebook-capsule" title="Trocar ou Renomear Caderno">
+            <span class="capsule-icon">📓</span>
+            <span id="capsule-notebook-title" class="capsule-title">Caderno</span>
+            <span class="capsule-chevron">▾</span>
+          </button>
+          <span class="badge-count" id="header-sources-badge">0 fontes</span>
+        </div>
+      </div>
+
+      <!-- 2. Centro: Barra de Pesquisa (Galeria) ou Indicador Grounded (Workspace) -->
+      <div class="nlm-topbar-center">
+        <div id="nlm-center-search" class="nlm-center-search-box">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" id="input-busca-top" placeholder="Buscar cadernos de estudo..." class="nlm-search-input">
+        </div>
+        <div id="nlm-center-workspace-title" class="nlm-grounded-badge-center" style="display: none;">
+          <span class="nlm-sparkle-dot">✨</span>
+          <span>Google Gemini Grounded Engine</span>
+        </div>
+      </div>
+
+      <!-- 3. Direita: Botões de Ação, Waffle Apps, Pomodoro & Avatar -->
+      <div class="nlm-topbar-right">
+        <button id="btn-header-novo-caderno" class="nlm-btn-pri-pill" onclick="window.abrirModalNovoCaderno && window.abrirModalNovoCaderno()">
+          + Novo caderno
+        </button>
+
+        <button id="btn-header-add-fonte" class="nlm-btn-sec-pill" style="display: none;" onclick="window.abrirModalAdicionarFonte && window.abrirModalAdicionarFonte()">
+          + Adicionar fonte
+        </button>
+
+        <!-- Google Waffle 9-dots (Apps Launcher) -->
+        <button id="btn-waffle-tools" class="nlm-icon-btn nlm-waffle-btn" title="Aplicativos e Ferramentas (Simulado, SRS, Mapas, Pomodoro)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <circle cx="5" cy="5" r="2.2"></circle><circle cx="12" cy="5" r="2.2"></circle><circle cx="19" cy="5" r="2.2"></circle>
+            <circle cx="5" cy="12" r="2.2"></circle><circle cx="12" cy="12" r="2.2"></circle><circle cx="19" cy="12" r="2.2"></circle>
+            <circle cx="5" cy="19" r="2.2"></circle><circle cx="12" cy="19" r="2.2"></circle><circle cx="19" cy="19" r="2.2"></circle>
+          </svg>
+        </button>
+
+        <!-- Pomodoro Pill Compacto Google Style -->
+        <div class="nlm-pomo-pill" title="Pomodoro de Foco">
+          <span class="pomo-ico">⏱️</span>
+          <span id="pomodoro-display" class="pomo-timer">25:00</span>
+          <button id="btn-pomodoro-toggle" class="btn-pomo-mini" title="Iniciar/Pausar">▶</button>
+        </div>
+
+        <!-- Avatar do Usuário -->
+        <div class="nlm-user-avatar" title="Gabriel (CBRO)">G</div>
+      </div>
+    </header>
+
+    <!-- Backdrop translúcido Apple para gaveta/bottom sheet -->
+    <div id="sidebar-backdrop" class="sidebar-backdrop"></div>
+
+    <!-- Main Container -->
+    <div class="main-body">
+      
+      <!-- Sidebar / Bottom Sheet de Cadernos -->
+      <aside class="sidebar apple-sheet">
+        <div class="sheet-drag-handle"></div>
+        <div class="sidebar-header">
+          <h2>Seus Cadernos</h2>
+          <button id="btn-novo-caderno" class="btn-icon apple-btn-round" title="Criar novo caderno no NotebookLM">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Busca Apple Style -->
+        <div class="search-box-container">
+          <div class="search-input-wrapper">
+            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" id="input-busca-cadernos" placeholder="Buscar cadernos..." class="search-input">
+          </div>
+        </div>
+
+        <div class="notebooks-list" id="notebooks-list">
+          <div class="loading-state">
+            <div class="spinner"></div>
+            <p>Carregando cadernos...</p>
+          </div>
+        </div>
+
+        <div class="sidebar-footer">
+          <div class="active-notebook-info">
+            <span class="active-label">Caderno Ativo:</span>
+            <strong id="active-notebook-title">Selecione um caderno</strong>
+            <span class="sources-count" id="active-notebook-sources">0 materiais ativos</span>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Conteúdo Principal das Abas -->
+      <main class="content-area">
+        
+        <!-- ABA 1: Workspace Triplo Google NotebookLM (Fontes, Chat Grounded & Studio) -->
+        <section id="tab-chat" class="tab-content active">
+        <!-- 1. TELA DE GALERIA DE CADERNOS (Home Oficial do Google NotebookLM) -->
+        <div id="nlm-gallery-view" class="nlm-gallery-screen">
+          <div class="nlm-gallery-hero">
+            <div class="nlm-gallery-hero-text">
+              <h2>Boas-vindas ao NotebookLM</h2>
+              <p>Crie um novo caderno ou selecione um existente para pesquisar, conversar e gerar resumos fundamentados com o Gemini.</p>
+            </div>
+            <div class="nlm-gallery-hero-btns">
+              <button class="btn-pri nlm-btn-pri-pill" onclick="window.abrirModalNovoCaderno && window.abrirModalNovoCaderno()">+ Novo Caderno</button>
+              <button class="btn-sec nlm-btn-sec-pill" onclick="window.abrirModalLandingPage && window.abrirModalLandingPage()">Ver Apresentação</button>
+            </div>
+          </div>
+
+          <div class="nlm-gallery-section">
+            <div class="nlm-gallery-section-header">
+              <h3>Cadernos recentes</h3>
+              <span class="nlm-gallery-count" id="gallery-count-badge">0 cadernos</span>
+            </div>
+
+            <div class="nlm-gallery-grid" id="nlm-gallery-grid">
+              <!-- Card Criar Novo Caderno -->
+              <div class="nlm-card-new-notebook" onclick="window.abrirModalNovoCaderno && window.abrirModalNovoCaderno()">
+                <div class="nlm-plus-circle">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                  </svg>
+                </div>
+                <h4>Criar novo caderno</h4>
+                <p>Adicione PDFs, vídeos do YouTube, links web ou notas de estudo</p>
+              </div>
+
+              <!-- Cadernos existentes inseridos dinamicamente -->
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. WORKSPACE TRIPLO GOOGLE NOTEBOOKLM (Fontes, Chat & Studio) -->
+        <div id="nlm-workspace-view" class="notebooklm-3col-workspace" style="display: none;">
+            
+            <!-- COLUNA 1: FONTES (NotebookLM Sources Panel) -->
+            <aside class="notebooklm-col-sources" id="notebooklm-col-sources">
+              <div class="sources-col-header">
+                <div class="sources-header-title">
+                  <h3>Fontes</h3>
+                  <span class="badge-count" id="sources-count-badge">0 fontes</span>
+                </div>
+                <button id="studio-btn-add-fonte" class="btn-add-source-pill" title="Adicionar Fonte ao Caderno">
+                  + Adicionar
+                </button>
+              </div>
+
+              <div class="sources-sub-bar">
+                <label class="select-all-sources-label" title="Selecionar ou desmarcar todas as fontes">
+                  <input type="checkbox" id="cb-select-all-sources" checked>
+                  <span>Selecionar todas</span>
+                </label>
+                <span class="sources-words-badge" id="sources-words-badge">0 palavras</span>
+              </div>
+
+              <!-- Lista de Fontes com Checkboxes -->
+              <div class="notebooklm-sources-scroll" id="notebooklm-sources-list">
+                <div class="empty-sources-box">
+                  <div class="empty-sources-icon">📚</div>
+                  <p><strong>Nenhuma fonte adicionada</strong></p>
+                  <p class="empty-sub">Adicione PDFs, links da web ou pesquisas autônomas para ancorar o conhecimento da IA.</p>
+                  <button class="btn-pri apple-btn-primary btn-add-first-source" onclick="abrirModalAdicionarFonte()">
+                    + Adicionar Primeira Fonte
+                  </button>
+                </div>
+              </div>
+            </aside>
+
+            <!-- COLUNA 2: CHAT SOCRÁTICO GROUNDED (Centro) -->
+            <div class="notebooklm-col-chat">
+              <div class="chat-container">
+                <div class="chat-header-bar nlm-chat-header">
+                  <div class="chat-title-group">
+                    <div class="nlm-header-sparkle-icon">✨</div>
+                    <div>
+                      <h2>Converse com suas fontes</h2>
+                      <p class="subtitle">Respostas fundamentadas e citações estritas das fontes ativas</p>
+                    </div>
+                  </div>
+
+                  <!-- Quick Command Pills -->
+                  <div class="quick-commands nlm-quick-chips">
+                    <button class="cmd-pill nlm-chip" data-cmd="/feynman">💡 /feynman</button>
+                    <button class="cmd-pill nlm-chip" data-cmd="/quiz">🎯 /quiz</button>
+                    <button class="cmd-pill nlm-chip" data-cmd="/resumo">📑 /resumo</button>
+                    <button class="cmd-pill nlm-chip" data-cmd="/mnemonico">🧠 /mnemonico</button>
+                    <button class="cmd-pill nlm-chip" data-cmd="/ajuda">❓ /ajuda</button>
+                  </div>
+                </div>
+
+                <div class="chat-messages" id="chat-messages">
+                  <div class="message msg-assistant nlm-msg">
+                    <div class="msg-avatar nlm-sparkle-avatar">✨</div>
+                    <div class="msg-content nlm-msg-content">
+                      <div class="nlm-speaker-label">✨ NotebookLM</div>
+                      <div class="nlm-markdown-body">
+                        <p>Olá! Suas fontes foram carregadas no <strong>Google NotebookLM Grounded Engine</strong>.</p>
+                        <p>Faça perguntas, peça sínteses ou explore pontos-chave. Suas respostas trazem <strong>citações clicáveis [1], [2]</strong> ancoradas nos documentos originais.</p>
+                        <p style="margin-top: 8px; font-size: 0.88rem; color: #a8c7fa;"><em>💡 Clique nos chips rápidos de sugestão ou use o Studio ao lado para gerar o Guia de Estudos e a Visão Geral em Áudio!</em></p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="chat-prompt-chips" id="chat-prompt-chips">
+                  <button class="prompt-chip" data-prompt="Faça um resumo executivo abrangente de todas as fontes ativas.">💡 Resumir fontes</button>
+                  <button class="prompt-chip" data-prompt="Quais são os conceitos mais importantes e prováveis de cair em prova?">🎯 Conceitos-chave</button>
+                  <button class="prompt-chip" data-prompt="Crie um simulado de 3 perguntas desafiadoras com gabarito comentado baseado nas fontes.">❓ Perguntas de teste</button>
+                  <button class="prompt-chip" data-prompt="Explique o tópico principal usando uma analogia simples e a técnica Feynman.">🧠 Técnica Feynman</button>
+                  <button class="prompt-chip" data-prompt="Existe alguma contradição, exceção ou ponto de divergência entre os materiais?">⚖️ Exceções & Divergências</button>
+                </div>
+
+                <!-- Chat Input estilo iOS / Siri Messages -->
+                <div class="chat-input-bar apple-input-dock">
+                  <button id="btn-mic-chat" class="btn-mic" title="Falar por voz">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                      <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                      <line x1="12" y1="19" x2="12" y2="23"></line>
+                      <line x1="8" y1="23" x2="16" y2="23"></line>
+                    </svg>
+                  </button>
+                  <textarea id="chat-input" placeholder="Pergunte sobre as fontes ou use /feynman..." rows="1"></textarea>
+                  <button id="chat-send-btn" class="btn-send-apple">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                      <line x1="22" y1="2" x2="11" y2="13"></line>
+                      <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- COLUNA 3: STUDIO NOTEBOOKLM (Direita) -->
+            <aside class="notebooklm-col-studio" id="notebooklm-col-studio">
+              <div class="studio-col-header">
+                <h3>Studio</h3>
+                <span class="studio-badge-pro">NotebookLM</span>
+              </div>
+
+              <!-- Bloco 1: Audio Overview (Podcast Deep Dive) -->
+              <!-- Bloco 1: Audio Overview (Podcast Deep Dive) -->
+              <div class="studio-audio-overview-card" id="studio-audio-overview-card">
+                <div class="overview-header">
+                  <div class="overview-icon-pulse">🎙️</div>
+                  <div>
+                    <h4>Visão Geral em Áudio</h4>
+                    <p id="audio-overview-subtitle">Conversa aprofundada com 2 vozes</p>
+                  </div>
+                </div>
+                <div class="overview-actions-row" style="display:flex; gap:8px; margin-top:8px;">
+                  <button id="btn-gerar-audio-overview" class="btn-generate-audio-studio" style="flex:1;">
+                    ⚡ Gerar Visão Geral
+                  </button>
+                  <button id="btn-ouvir-audio-overview" class="btn-play-audio-studio" style="display:none; flex:1;">
+                    ▶️ Ouvir Episódio
+                  </button>
+                </div>
+              </div>
+
+              <!-- Bloco 2: Ferramentas do Studio de 1 Toque -->
+              <div class="studio-tools-section">
+                <span class="section-label">GERAR COM 1 TOQUE</span>
+                <div class="studio-tools-grid">
+                  <button class="studio-tool-tile" id="studio-btn-guia" title="Gerar Guia de Estudos Completo">
+                    <span class="tool-icon">📖</span>
+                    <span class="tool-name">Guia de Estudo</span>
+                  </button>
+                  <button class="studio-tool-tile" id="studio-btn-faq" title="Gerar Perguntas Frequentes">
+                    <span class="tool-icon">❓</span>
+                    <span class="tool-name">FAQ de Prova</span>
+                  </button>
+                  <button class="studio-tool-tile" id="studio-btn-timeline" title="Gerar Linha do Tempo">
+                    <span class="tool-icon">⏳</span>
+                    <span class="tool-name">Linha do Tempo</span>
+                  </button>
+                  <button class="studio-tool-tile" id="studio-btn-briefing" title="Gerar Documento de Briefing">
+                    <span class="tool-icon">📑</span>
+                    <span class="tool-name">Briefing Doc</span>
+                  </button>
+                  <button class="studio-tool-tile tool-tile-note" id="studio-btn-nota" title="Criar Nova Nota Salva">
+                    <span class="tool-icon">📝</span>
+                    <span class="tool-name">Nova Nota</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Bloco 3: Notas Salvas do Caderno (Notes Deck) -->
+              <div class="studio-notes-section">
+                <div class="notes-section-header">
+                  <span class="section-label">NOTAS SALVAS (<span id="studio-notes-count">0</span>)</span>
+                </div>
+                <div class="studio-notes-scroll" id="studio-notes-deck">
+                  <div class="empty-notes-prompt">
+                    <p><strong>Nenhuma nota fixada</strong></p>
+                    <p class="empty-sub">Clique em <em>Nova Nota</em> ou gere um <em>Guia de Estudos</em> para fixar materiais aqui.</p>
+                  </div>
+                </div>
+              </div>
+
+            </aside>
+
+          </div>
+        </section>
+
+        <!-- ABA 2: Simulado Gamificado (Estilo Apple Arcade / Duolingo) -->
+        <section id="tab-quiz" class="tab-content">
+          <div class="quiz-container apple-game-container">
+            <div class="quiz-header-bar">
+              <div>
+                <span class="quiz-badge">🎮 DESAFIO DO CONHECIMENTO</span>
+                <h2 id="quiz-source-title">Simulado</h2>
+              </div>
+              <button id="btn-gerar-novo-quiz" class="btn-sec apple-btn-secondary">
+                ✨ Gerar Novo Simulado
+              </button>
+            </div>
+
+            <!-- Card de Questão Apple Game -->
+            <div class="quiz-card apple-game-card" id="quiz-card">
+              <!-- HUD de Progresso e Combo -->
+              <div class="quiz-card-header">
+                <div class="quiz-progress-wrapper">
+                  <span id="quiz-progress-text" class="quiz-prog-text">Questão 1 de 10</span>
+                  <div class="quiz-track-bar">
+                    <div id="quiz-prog-fill" class="quiz-fill-bar" style="width: 10%;"></div>
+                  </div>
+                </div>
+                <div id="quiz-combo-badge" class="quiz-combo-badge" style="display: none;">
+                  🔥 <span id="quiz-combo-count">1</span>x COMBO!
+                </div>
+              </div>
+
+              <div class="quiz-question-body">
+                <p id="quiz-question-text">Carregando questão...</p>
+              </div>
+
+              <div class="quiz-options" id="quiz-options-list">
+                <!-- Opções renderizadas via JS com feedback físico -->
+              </div>
+
+              <!-- Feedback do Acerto/Erro -->
+              <div class="quiz-feedback apple-feedback-card" id="quiz-feedback" style="display: none;">
+                <div class="feedback-badge" id="feedback-badge"></div>
+                <p id="feedback-rationale"></p>
+                <button id="btn-explicar-erro-ia" class="btn-explain-ai apple-btn-feynman" style="display: none;">
+                  🧠 Pedir à Júlia para me explicar esse erro com o Método Feynman!
+                </button>
+              </div>
+
+              <div class="quiz-card-footer">
+                <button id="btn-dica-quiz" class="btn-ghost apple-btn-ghost">💡 Dica</button>
+                <div class="quiz-nav-btns">
+                  <button id="btn-prev-question" class="btn-sec apple-btn-secondary" disabled>Anterior</button>
+                  <button id="btn-next-question" class="btn-pri apple-btn-primary">Próxima Questão ➔</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ABA 3: Flashcards SRS (Spaced Repetition SM-2) -->
+        <section id="tab-srs" class="tab-content">
+          <div class="srs-wrapper apple-srs-container">
+            <div class="srs-header-bar">
+              <div>
+                <span class="srs-badge">🧠 RETENÇÃO DE LONGO PRAZO</span>
+                <h2>Flashcards SRS (Algoritmo SM-2)</h2>
+                <p>Revise os pontos críticos e questões que você errou nos simulados para memorizar para sempre.</p>
+              </div>
+              <button id="btn-novo-card-manual" class="btn-sec apple-btn-secondary">
+                ➕ Adicionar Card
+              </button>
+            </div>
+
+            <!-- Card 3D Flip estilo Apple Wallet -->
+            <div class="srs-card-container">
+              <div class="srs-flashcard apple-3d-card" id="srs-card-box">
+                <div class="srs-face srs-front">
+                  <span class="srs-tag">PERGUNTA / CONCEITO</span>
+                  <div class="srs-question-body" id="srs-front-text">Carregando flashcards...</div>
+                  <button id="btn-flip-srs" class="btn-flip-apple">Toque para Virar a Resposta 🔄</button>
+                </div>
+                <div class="srs-face srs-back">
+                  <span class="srs-tag answer-tag">RESPOSTA & GABARITO</span>
+                  <div class="srs-answer-body" id="srs-back-text"></div>
+                  <div class="srs-explanation" id="srs-back-exp"></div>
+                  
+                  <div class="srs-actions-buttons">
+                    <button class="srs-btn btn-srs-again apple-btn-action" data-quality="1">❌ Errei (1 dia)</button>
+                    <button class="srs-btn btn-srs-hard apple-btn-action" data-quality="2">🤔 Difícil (3 dias)</button>
+                    <button class="srs-btn btn-srs-good apple-btn-action" data-quality="4">👍 Bom (6 dias)</button>
+                    <button class="srs-btn btn-srs-easy apple-btn-action" data-quality="5">🌟 Fácil (10 dias)</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Lista de Todos os Cards do SRS -->
+            <div class="srs-all-cards-section apple-card-panel">
+              <div class="srs-list-header">
+                <h3>Sua Coleção de Memória (<span id="srs-total-count">0</span> cards)</h3>
+              </div>
+              <div class="srs-table-container">
+                <table class="srs-table">
+                  <thead>
+                    <tr>
+                      <th>Questão / Conceito</th>
+                      <th>Gabarito</th>
+                      <th>Intervalo</th>
+                      <th>Próxima Revisão</th>
+                    </tr>
+                  </thead>
+                  <tbody id="srs-cards-tbody">
+                    <tr><td colspan="4" style="text-align:center;">Nenhum flashcard registrado ainda.</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+                <!-- ABA 4: Mapa Mental Interativo & Sketchnote Editorial -->
+        <section id="tab-mapa" class="tab-content">
+          <div class="mapa-container">
+            <div class="mapa-top-bar">
+              <div class="mapa-info">
+                <span class="mapa-badge">RESUMO VISUAL SKETCHNOTE</span>
+                <h2 id="mapa-title-text">Arte Barroca no Brasil</h2>
+                <span id="mapa-status-text" class="mapa-status">💡 Toque em qualquer bloco para explicar com a Júlia (Feynman)</span>
+              </div>
+              <div class="mapa-controls apple-glass-controls">
+                <div class="mapa-style-picker">
+                  <select id="select-estilo-mapa" class="apple-dropdown-pill" title="Escolha o estilo de mapa mental">
+                    <option value="barroco">🏛️ Barroco Sketchnote</option>
+                    <option value="concurso">🎯 Fichamento Concurso (IMEF)</option>
+                    <option value="radial">🌿 Radial Orgânico (História)</option>
+                    <option value="minimal">✏️ Minimalista Pop (Cartoon)</option>
+                  </select>
+                </div>
+                <button id="btn-mapa-ver-exemplo" class="btn-mapa-ctrl" title="Ver Obra de Arte Oficial deste Estilo">🖼️ Ver Exemplo Oficial</button>
+                <button id="btn-mapa-tema" class="btn-mapa-ctrl" title="Alternar entre Papel e Dark">🌙 Modo Dark</button>
+                <button id="btn-gerar-novo-mapa" class="btn-sec apple-btn-secondary" title="Gerar novo mapa com IA para o caderno ativo">✨ Recalcular com IA</button>
+                <button id="btn-mapa-ouvir-audio" class="btn-mapa-ctrl" title="Ouvir resumo narrado pela Júlia">🔊 Narrar</button>
+                <button id="btn-mapa-imprimir" class="btn-mapa-ctrl" title="Imprimir / Salvar PDF">🖨️</button>
+              </div>
+            </div>
+
+            <div class="mindmap-canvas-container" id="mindmap-canvas-container">
+              <!-- Renderizado com alta fidelidade pelo mapa.js -->
+            </div>
+          </div>
+        </section>
+
+        <!-- ABA 5: Podcast em Áudio do NotebookLM (APPLE MUSIC STYLE COMPLETO) -->
+        <section id="tab-podcast" class="tab-content">
+          <div class="podcast-container">
+            <div class="podcast-card apple-music-card">
+              
+              <div class="podcast-artwork apple-artwork">
+                <div class="sound-waves">
+                  <span></span><span></span><span></span><span></span><span></span>
+                </div>
+                <div class="podcast-badge-type">PODCAST DEEP-DIVE</div>
+              </div>
+
+              <div class="podcast-meta">
+                <h2 id="podcast-title">Audio Overview Oficial</h2>
+                <p id="podcast-subtitle">Debate e explicação em áudio gerada diretamente das fontes pelo NotebookLM</p>
+              </div>
+
+              <div class="audio-player-wrapper">
+                <audio id="audio-player" preload="metadata"></audio>
+                
+                <div class="scrubber-container apple-scrubber">
+                  <span id="current-time">00:00</span>
+                  <input type="range" id="seek-bar" value="0" max="100">
+                  <span id="duration-time">--:--</span>
+                </div>
+
+                <div class="player-controls apple-player-controls">
+                  <div class="speed-selector">
+                    <button class="speed-btn active" data-speed="1">1.0x</button>
+                    <button class="speed-btn" data-speed="1.25">1.25x</button>
+                    <button class="speed-btn" data-speed="1.5">1.5x</button>
+                    <button class="speed-btn" data-speed="2">2.0x</button>
+                  </div>
+
+                  <div class="main-audio-btns">
+                    <button id="btn-skip-back" class="btn-circle-small" title="Voltar 10s">↺ 10s</button>
+                    <button id="btn-play-pause" class="btn-circle-play apple-play-btn">
+                      <svg id="icon-play" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                      <svg id="icon-pause" viewBox="0 0 24 24" fill="currentColor" style="display:none;"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+                    </button>
+                    <button id="btn-skip-forward" class="btn-circle-small" title="Avançar 10s">10s ↻</button>
+                  </div>
+
+                  <div class="audio-extra-actions">
+                    <a id="btn-download-audio" class="btn-ghost apple-btn-download" href="#" download style="display: none;">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" y2="3"/></svg>
+                      Baixar MP3
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              <div class="podcast-footer">
+                <button id="btn-gerar-novo-audio" class="btn-sec apple-btn-secondary">
+                  🎙️ Gerar Novo Áudio no NotebookLM
+                </button>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+        <!-- ABA 6: Fontes & Apostilas & Pesquisa Autônoma (COMPLETO) -->
+        <section id="tab-fontes" class="tab-content">
+          <div class="sources-container apple-sources-container">
+            <div class="sources-header">
+              <h2>Alimentar o Caderno Ativo</h2>
+              <p>Adicione PDFs, livros digitais, links da web, aulas do YouTube ou faça pesquisas autônomas na internet com o NotebookLM.</p>
+            </div>
+
+            <div class="sources-grid">
+              <!-- Upload de Arquivo -->
+              <div class="source-card apple-card">
+                <div class="source-icon">📄</div>
+                <h3>Apostila ou Livro (PDF / TXT)</h3>
+                <p>Faça upload de materiais para serem lidos pelo NotebookLM.</p>
+                <div class="upload-dropzone" id="dropzone">
+                  <input type="file" id="file-upload-input" accept=".pdf,.txt,.md" style="display: none;">
+                  <button id="btn-trigger-upload" class="btn-pri apple-btn-primary">Escolher Arquivo</button>
+                  <span id="upload-status" class="status-hint">PDF, TXT ou Markdown até 200MB</span>
+                </div>
+              </div>
+
+              <!-- Link Web / YouTube -->
+              <div class="source-card apple-card">
+                <div class="source-icon">🔗</div>
+                <h3>Link da Web ou YouTube</h3>
+                <p>Cole a URL de um artigo, notícia ou vídeo explicativo.</p>
+                <div class="url-input-group">
+                  <input type="url" id="input-url-fonte" placeholder="https://youtube.com/watch?v=... ou site" class="apple-input-field">
+                  <button id="btn-add-url-fonte" class="btn-pri apple-btn-primary">Adicionar</button>
+                </div>
+                <span id="url-status" class="status-hint">Extrai transcrição e texto na íntegra</span>
+              </div>
+
+              <!-- Pesquisa Autônoma (Deep Research) -->
+              <div class="source-card apple-card" style="border-color: rgba(10, 132, 255, 0.4);">
+                <div class="source-icon">🔍</div>
+                <h3>Pesquisa Autônoma na Web</h3>
+                <p>O NotebookLM vasculha a internet e adiciona as fontes mais confiáveis ao seu caderno.</p>
+                <div class="url-input-group">
+                  <input type="text" id="input-pesquisa-web" placeholder="Ex: Regras de concordância verbal FCC" class="apple-input-field">
+                  <button id="btn-pesquisar-web-fonte" class="btn-pri apple-btn-primary" style="background: var(--apple-blue);">Pesquisar</button>
+                </div>
+                <span id="pesquisa-web-status" class="status-hint">Modo Deep Research com busca e importação automática</span>
+              </div>
+            </div>
+
+            <!-- Lista de Fontes Ativas -->
+            <div class="artifacts-box apple-card" style="margin-bottom: 24px;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+                <h3 style="margin-bottom: 0;">📚 Fontes Processadas neste Caderno (<span id="fontes-count">0</span>)</h3>
+                <button id="btn-recarregar-fontes" class="btn-sec apple-btn-secondary" style="padding: 5px 12px; font-size: 0.78rem;">
+                  🔄 Atualizar Fontes
+                </button>
+              </div>
+              <div id="fontes-list" class="artifacts-list">
+                <!-- Renderizado via JS -->
+              </div>
+            </div>
+
+            <!-- Artefatos Gerados -->
+            <div class="artifacts-box apple-card">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+                <h3 style="margin-bottom: 0;">⚡ Artefatos Gerados (Quizzes, Mapas & Podcasts)</h3>
+                <div style="display: flex; gap: 8px;">
+                  <button id="btn-gerar-quiz-fontes" class="btn-pri apple-btn-primary" style="padding: 5px 12px; font-size: 0.78rem;">
+                    ✨ Gerar Quiz
+                  </button>
+                  <button id="btn-gerar-mapa-fontes" class="btn-sec apple-btn-secondary" style="padding: 5px 12px; font-size: 0.78rem;">
+                    🗺️ Gerar Mapa
+                  </button>
+                  <button id="btn-gerar-audio-fontes" class="btn-sec apple-btn-secondary" style="padding: 5px 12px; font-size: 0.78rem;">
+                    🎙️ Gerar Podcast
+                  </button>
+                </div>
+              </div>
+              <div id="artifacts-list" class="artifacts-list">
+                <!-- Renderizado via JS -->
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ABA 7: Progresso & Game Center (Apple Fitness Style) -->
+        <section id="tab-dashboard" class="tab-content">
+          <div class="dash-container apple-game-center">
+            
+            <!-- Perfil do Jogador & Nível de Mestria -->
+            <div class="dash-player-card apple-glass-card">
+              <div class="player-avatar-badge">🏆</div>
+              <div class="player-details">
+                <div class="player-top-line">
+                  <span class="player-level-badge" id="dash-player-level">Nível 2</span>
+                  <span class="player-title" id="dash-player-title">Praticante Ativo</span>
+                </div>
+                <div class="player-xp-bar-container">
+                  <div class="player-xp-track">
+                    <div id="dash-player-xp-fill" class="player-xp-fill" style="width: 30%;"></div>
+                  </div>
+                  <span id="dash-player-xp-text" class="player-xp-text">160 / 400 XP</span>
+                </div>
+              </div>
+              <button id="btn-exportar-obsidian" class="btn-pri apple-btn-obsidian">
+                📂 Exportar para o Obsidian
+              </button>
+            </div>
+            <div id="exportar-obsidian-status" class="status-hint" style="margin-bottom: 20px;"></div>
+
+            <!-- Apple Activity Rings (Grande) -->
+            <div class="dash-rings-card apple-glass-card">
+              <div class="rings-card-header">
+                <h3>Metas de Atividade Diária</h3>
+                <span class="rings-sub">Feche seus anéis todos os dias para manter o streak</span>
+              </div>
+              <div class="rings-layout-flex">
+                <div class="big-rings-wrapper">
+                  <svg class="big-rings-svg" viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="40" stroke="rgba(255, 69, 58, 0.18)" stroke-width="7" fill="none" />
+                    <circle cx="50" cy="50" r="30" stroke="rgba(48, 209, 88, 0.18)" stroke-width="7" fill="none" />
+                    <circle cx="50" cy="50" r="20" stroke="rgba(10, 132, 255, 0.18)" stroke-width="7" fill="none" />
+                    <circle id="dash-ring-foco" cx="50" cy="50" r="40" stroke="#FF453A" stroke-width="7" fill="none" stroke-linecap="round" />
+                    <circle id="dash-ring-questoes" cx="50" cy="50" r="30" stroke="#30D158" stroke-width="7" fill="none" stroke-linecap="round" />
+                    <circle id="dash-ring-srs" cx="50" cy="50" r="20" stroke="#0A84FF" stroke-width="7" fill="none" stroke-linecap="round" />
+                  </svg>
+                </div>
+                <div class="rings-legend-list">
+                  <div class="ring-legend-item">
+                    <span class="ring-dot dot-red"></span>
+                    <div>
+                      <strong>Foco Pomodoro</strong>
+                      <span id="lbl-ring-foco" class="ring-meta-val">0/25 min</span>
+                    </div>
+                  </div>
+                  <div class="ring-legend-item">
+                    <span class="ring-dot dot-green"></span>
+                    <div>
+                      <strong>Questões do Simulado</strong>
+                      <span id="lbl-ring-questoes" class="ring-meta-val">2/5 feitas</span>
+                    </div>
+                  </div>
+                  <div class="ring-legend-item">
+                    <span class="ring-dot dot-blue"></span>
+                    <div>
+                      <strong>Cards SRS Revisados</strong>
+                      <span id="lbl-ring-srs" class="ring-meta-val">1/3 revisados</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Grid de KPIs Clássicos -->
+            <div class="dash-kpis-grid">
+              <div class="kpi-card apple-card">
+                <span class="kpi-icon">⏱️</span>
+                <div class="kpi-val" id="dash-tempo-foco">0 min</div>
+                <div class="kpi-label">Foco Líquido Hoje</div>
+              </div>
+              <div class="kpi-card apple-card">
+                <span class="kpi-icon">📝</span>
+                <div class="kpi-val" id="dash-total-questoes">0</div>
+                <div class="kpi-label">Questões Resolvidas</div>
+              </div>
+              <div class="kpi-card apple-card">
+                <span class="kpi-icon">🎯</span>
+                <div class="kpi-val" id="dash-taxa-acerto">100%</div>
+                <div class="kpi-label">Taxa de Acertos</div>
+              </div>
+              <div class="kpi-card apple-card">
+                <span class="kpi-icon">🗂️</span>
+                <div class="kpi-val" id="dash-srs-pendentes">0</div>
+                <div class="kpi-label">Cards SRS Para Hoje</div>
+              </div>
+            </div>
+
+            <!-- Heatmap Minimalista Apple (30 dias) -->
+            <div class="heatmap-card apple-card">
+              <div class="heatmap-header">
+                <h3>🔥 Consistência dos Últimos 30 Dias (Heatmap)</h3>
+                <span class="heatmap-legend">
+                  <span>Menos</span>
+                  <span class="legend-box level-0"></span>
+                  <span class="legend-box level-1"></span>
+                  <span class="legend-box level-2"></span>
+                  <span class="legend-box level-3"></span>
+                  <span>Mais Foco</span>
+                </span>
+              </div>
+              <div class="heatmap-grid" id="heatmap-grid">
+                <!-- Renderizado dinamicamente via JS -->
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+      </main>
+    </div>
+
+    <!-- iOS Bottom Navigation Bar (Mobile <= 768px) -->
+    <nav class="ios-bottom-bar" id="ios-bottom-bar">
+      <button class="ios-tab-item active" data-tab="tab-chat">
+        <span class="ios-tab-icon">💬</span>
+        <span class="ios-tab-label">Tutor</span>
+      </button>
+      <button class="ios-tab-item" data-tab="tab-quiz">
+        <span class="ios-tab-icon">🎮</span>
+        <span class="ios-tab-label">Simulado</span>
+      </button>
+      <button class="ios-tab-item" data-tab="tab-srs">
+        <span class="ios-tab-icon">🗂️</span>
+        <span class="ios-tab-label">Cards</span>
+        <span class="ios-tab-badge" id="badge-srs-ios" style="display:none;">0</span>
+      </button>
+      <button class="ios-tab-item" data-tab="tab-mapa">
+        <span class="ios-tab-icon">🗺️</span>
+        <span class="ios-tab-label">Mapa</span>
+      </button>
+      <button class="ios-tab-item" data-tab="tab-podcast">
+        <span class="ios-tab-icon">🎙️</span>
+        <span class="ios-tab-label">Podcast</span>
+      </button>
+      <button class="ios-tab-item" data-tab="tab-fontes">
+        <span class="ios-tab-icon">📚</span>
+        <span class="ios-tab-label">Fontes</span>
+      </button>
+      <button class="ios-tab-item" data-tab="tab-dashboard">
+        <span class="ios-tab-icon">🏆</span>
+        <span class="ios-tab-label">Progresso</span>
+      </button>
+    </nav>
+
+    <!-- Modal Novo Caderno -->
+    <div id="modal-novo-caderno" class="modal-backdrop modal-overlay" style="display: none;">
+      <div class="modal-box apple-modal-box">
+        <div class="modal-header">
+          <h3>Novo Caderno</h3>
+          <button id="btn-close-modal" class="modal-close btn-close">&times;</button>
+        </div>
+        <div class="modal-body">
+          <label for="input-novo-caderno-titulo">Título da Matéria / Concurso:</label>
+          <input type="text" id="input-novo-caderno-titulo" class="apple-input" placeholder="Ex: Direito Constitucional, Português FCC...">
+        </div>
+        <div class="modal-footer">
+          <button id="btn-cancelar-modal" class="btn-sec apple-btn-secondary">Cancelar</button>
+          <button id="btn-confirmar-novo-caderno" class="btn-pri apple-btn-primary">Criar Caderno no NotebookLM</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Scripts do Ecossistema -->
+  <script src="/js/appleAudio.js?v=apple_v25"></script>
+  <script src="/js/game.js?v=apple_v25"></script>
+  <script src="/js/extras.js?v=apple_v25"></script>
+  <script src="/js/chat.js?v=google_nlm_v2"></script>
+  <script src="/js/quiz.js?v=apple_v25"></script>
+  <script src="/js/srs.js?v=apple_v25"></script>
+  <script src="/js/mapa.js?v=apple_v25"></script>
+  <script src="/js/player.js?v=apple_v25"></script>
+  <script src="/js/app.js?v=google_nlm_v2"></script>
+
+    <!-- Modal de Visualização de Documento do Studio (Guia, FAQ, Linha do Tempo) -->
+    <div id="modal-studio-doc" class="modal-backdrop modal-overlay" style="display: none;">
+      <div class="modal-box studio-modal-editorial">
+        <div class="modal-header">
+          <h3 id="studio-doc-modal-title">Documento do Studio</h3>
+          <div style="display:flex; gap:8px; align-items:center;">
+            <button id="btn-fixar-doc-nota" class="btn-sec apple-btn-secondary" style="font-size:0.8rem; padding:4px 10px;">📌 Fixar como Nota</button>
+            <button id="btn-copiar-studio-doc" class="btn-sec apple-btn-secondary" style="font-size:0.8rem; padding:4px 10px;">📋 Copiar</button>
+            <button id="btn-close-studio-doc" class="modal-close btn-close">&times;</button>
+          </div>
+        </div>
+        <div class="modal-body studio-modal-body" id="studio-doc-modal-content">
+          <!-- Conteúdo gerado -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Nova Nota do Studio -->
+    <div id="modal-nova-nota" class="modal-backdrop modal-overlay" style="display: none;">
+      <div class="modal-box apple-modal-box">
+        <div class="modal-header">
+          <h3>Nova Nota no Caderno</h3>
+          <button id="btn-cancelar-nova-nota" class="modal-close btn-close">&times;</button>
+        </div>
+        <div class="modal-body">
+          <label for="input-nota-titulo">Título:</label>
+          <input type="text" id="input-nota-titulo" class="apple-input" placeholder="Ex: Regra da Crase antes de horas...">
+          <label for="input-nota-conteudo" style="margin-top:12px; display:block;">Conteúdo / Explicação:</label>
+          <textarea id="input-nota-conteudo" class="apple-input" rows="6" placeholder="Escreva suas anotações, síntese ou insights..."></textarea>
+        </div>
+        <div class="modal-footer">
+          <button id="btn-salvar-nova-nota" class="btn-pri apple-btn-primary">Salvar Nota no Studio</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Leitor de Fonte Original -->
+    <div id="modal-fonte-viewer" class="modal-backdrop modal-overlay" style="display: none;">
+      <div class="modal-box studio-modal-editorial">
+        <div class="modal-header">
+          <div>
+            <h3 id="fonte-viewer-title">Leitor de Fonte</h3>
+            <span id="fonte-viewer-meta" style="font-size:0.75rem; color:var(--text-dim);">Documento</span>
+          </div>
+          <button id="btn-close-fonte-viewer" class="modal-close btn-close">&times;</button>
+        </div>
+        <div class="modal-body studio-modal-body" id="fonte-viewer-content">
+          <!-- Conteúdo da fonte -->
+        </div>
+      </div>
+    </div>
+  
+      <!-- Modal Editar Nota do Studio -->
+    <div id="modal-editar-nota" class="modal-backdrop modal-overlay" style="display: none;">
+      <div class="modal-box apple-modal-box">
+        <div class="modal-header">
+          <h3>Editar Nota</h3>
+          <button id="btn-cancelar-editar-nota" class="modal-close btn-close">&times;</button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="input-editar-nota-id">
+          <label for="input-editar-nota-titulo">Título:</label>
+          <input type="text" id="input-editar-nota-titulo" class="apple-input">
+          <label for="input-editar-nota-conteudo" style="margin-top:12px; display:block;">Conteúdo:</label>
+          <textarea id="input-editar-nota-conteudo" class="apple-input" rows="6"></textarea>
+        </div>
+        <div class="modal-footer" style="display:flex; justify-content:space-between;">
+          <button id="btn-converter-nota-fonte-modal" class="btn-sec apple-btn-secondary" title="Converter nota em fonte para grounding">📥 Converter em Fonte</button>
+          <button id="btn-salvar-editar-nota" class="btn-pri apple-btn-primary">Salvar Alterações</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Player de Áudio / Visão Geral (Audio Overview Deep Dive) -->
+    <div id="modal-audio-overview" class="modal-backdrop modal-overlay" style="display: none;">
+      <div class="modal-box studio-modal-editorial" style="max-width: 680px;">
+        <div class="modal-header">
+          <div>
+            <h3 id="audio-overview-modal-title">🎙️ Visão Geral em Áudio (Deep Dive)</h3>
+            <span id="audio-overview-modal-meta" style="font-size:0.75rem; color:var(--text-dim);">Apresentadores IA Alex & Sarah</span>
+          </div>
+          <button id="btn-close-audio-overview" class="modal-close btn-close">&times;</button>
+        </div>
+        <div class="modal-body studio-modal-body" style="padding: 16px 20px;">
+          <!-- Player Controls Bar -->
+          <div class="podcast-player-card" style="margin-bottom: 20px; background: rgba(255,255,255,0.05); padding: 14px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.1);">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom: 10px;">
+              <div style="display:flex; align-items:center; gap:12px;">
+                <button id="btn-audio-overview-play" class="btn-pri apple-btn-primary" style="width:42px; height:42px; border-radius:50%; padding:0; display:flex; align-items:center; justify-content:center; font-size:1.2rem;">
+                  ▶
+                </button>
+                <div>
+                  <strong id="audio-speaker-now" style="color:var(--apple-blue); font-size:0.9rem;">Pronto para iniciar</strong>
+                  <div id="audio-overview-progress-text" style="font-size:0.75rem; color:var(--text-dim);">Fala 0 de 0</div>
+                </div>
+              </div>
+              <div style="display:flex; gap:6px;">
+                <button id="btn-audio-speed" class="btn-sec apple-btn-secondary" style="font-size:0.75rem; padding:4px 8px;">1x</button>
+                <button id="btn-audio-stop" class="btn-sec apple-btn-secondary" style="font-size:0.75rem; padding:4px 8px;">⏹ Parar</button>
+              </div>
+            </div>
+            <!-- Progress Bar -->
+            <div style="height:6px; background:rgba(255,255,255,0.1); border-radius:3px; overflow:hidden;">
+              <div id="audio-overview-prog-bar" style="height:100%; width:0%; background:var(--apple-blue); transition:width 0.3s ease;"></div>
+            </div>
+          </div>
+
+          <!-- Diálogo e Transcrição Sincronizada -->
+          <h4 style="font-size:0.85rem; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-dim); margin-bottom:12px;">Transcrição do Diálogo</h4>
+          <div id="audio-overview-dialog-list" style="display:flex; flex-direction:column; gap:10px; max-height:360px; overflow-y:auto; padding-right:6px;">
+            <!-- Linhas de fala renderizadas dinamicamente com destaque do locutor ativo -->
+          </div>
+        </div>
+      </div>
+    </div>
+  
+  <script src="/js/studio.js?v=google_nlm_v2"></script>
+
+  <!-- MODAL GOOGLE WAFFLE (APPS LAUNCHER) -->
+  <div id="modal-waffle-tools" class="modal-backdrop" style="display: none;" onclick="if(event.target===this) window.fecharModalWaffle()">
+    <div class="modal-box nlm-waffle-modal-box">
+      <div class="modal-header">
+        <div class="nlm-waffle-header-title">
+          <span class="nlm-gemini-sparkle">✨</span>
+          <h3>Aplicativos de Estudo</h3>
+        </div>
+        <button class="btn-close-modal" onclick="window.fecharModalWaffle()">✕</button>
+      </div>
+      <div class="nlm-waffle-grid">
+        <div class="nlm-waffle-item" onclick="window.trocarAbaWaffle('tab-chat')">
+          <span class="waffle-icon">📑</span>
+          <div class="waffle-label">NotebookLM Studio</div>
+          <div class="waffle-desc">Workspace grounded triplo</div>
+        </div>
+        <div class="nlm-waffle-item" onclick="window.trocarAbaWaffle('tab-quiz')">
+          <span class="waffle-icon">🎮</span>
+          <div class="waffle-label">Simulado & Questões</div>
+          <div class="waffle-desc">Bancas examinadoras e gabaritos</div>
+        </div>
+        <div class="nlm-waffle-item" onclick="window.trocarAbaWaffle('tab-srs')">
+          <span class="waffle-icon">🗂️</span>
+          <div class="waffle-label">Cards SRS Anki</div>
+          <div class="waffle-desc">Repetição espaçada SM-2</div>
+        </div>
+        <div class="nlm-waffle-item" onclick="window.trocarAbaWaffle('tab-mapa')">
+          <span class="waffle-icon">🗺️</span>
+          <div class="waffle-label">Mapa Mental</div>
+          <div class="waffle-desc">Grafo sináptico interativo</div>
+        </div>
+        <div class="nlm-waffle-item" onclick="window.trocarAbaWaffle('tab-podcast')">
+          <span class="waffle-icon">🎙️</span>
+          <div class="waffle-label">Podcast IA</div>
+          <div class="waffle-desc">Discussão com Alex e Sarah</div>
+        </div>
+        <div class="nlm-waffle-item" onclick="window.trocarAbaWaffle('tab-fontes')">
+          <span class="waffle-icon">📚</span>
+          <div class="waffle-label">Central de Fontes</div>
+          <div class="waffle-desc">Gerenciamento de materiais</div>
+        </div>
+        <div class="nlm-waffle-item" onclick="window.trocarAbaWaffle('tab-dashboard')">
+          <span class="waffle-icon">🏆</span>
+          <div class="waffle-label">Progresso & XP</div>
+          <div class="waffle-desc">Métricas, streaks e tempo</div>
+        </div>
+        <div class="nlm-waffle-item" onclick="window.abrirModalLandingPage && window.abrirModalLandingPage(); window.fecharModalWaffle();">
+          <span class="waffle-icon">🌟</span>
+          <div class="waffle-label">Página de Apresentação</div>
+          <div class="waffle-desc">Landing oficial do NotebookLM</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE APRESENTAÇÃO / LANDING PAGE OFICIAL DO GOOGLE NOTEBOOKLM -->
+  <div id="modal-nlm-landing" class="modal-backdrop nlm-landing-backdrop" style="display: none;">
+    <div class="nlm-landing-page-wrap">
+      <div class="nlm-landing-top-bar">
+        <div class="nlm-landing-logo-left">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+            <path d="M14 2C7.37 2 2 7.37 2 14v10a2 2 0 002 2h3a2 2 0 002-2v-7a2 2 0 00-2-2H4.2A11.97 11.97 0 0114 4.1 11.97 11.97 0 0123.8 13H21a2 2 0 00-2 2v7a2 2 0 002 2h3a2 2 0 002-2V14C26 7.37 20.63 2 14 2z" fill="url(#gemini_land_grad)"/>
+            <defs>
+              <linearGradient id="gemini_land_grad" x1="2" y1="2" x2="26" y2="26" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#4285F4"/>
+                <stop offset="0.5" stop-color="#9B72CF"/>
+                <stop offset="1" stop-color="#D96570"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          <span class="nlm-land-title">Gemini Notebook</span>
+        </div>
+        <button class="nlm-btn-hero-login" onclick="window.fecharModalLandingPage()">Fazer login</button>
+      </div>
+
+      <div class="nlm-landing-hero-content">
+        <div class="nlm-landing-hero-left">
+          <h1 class="nlm-landing-big-title">
+            Entenda<br>
+            <span class="blue-grad-word">qualquer</span><br>
+            <span class="blue-grad-word">assunto</span>
+          </h1>
+          <p class="nlm-landing-lead">
+            Seu parceiro de pesquisa e análise, baseado nas informações em que você confia e criado com os modelos mais recentes do Gemini.
+          </p>
+          <button class="nlm-btn-hero-cta" onclick="window.fecharModalLandingPage()">
+            Faça login no Gemini Notebook
+          </button>
+        </div>
+
+        <div class="nlm-landing-hero-right">
+          <div class="nlm-visual-infographic">
+            <div class="nlm-info-badge feat-slides">
+              <span class="info-ico">📄</span> Transforme seus arquivos em <strong>slides</strong>
+            </div>
+            <div class="nlm-info-badge feat-audio">
+              <span class="info-ico">🎙️</span> Transforme suas atividades em <strong>Resumos em Áudio</strong>
+            </div>
+            <div class="nlm-info-badge feat-maps">
+              <span class="info-ico">🗺️</span> Transforme ideias em <strong>mapas mentais</strong>
+            </div>
+            <div class="nlm-info-badge feat-video">
+              <span class="info-ico">📺</span> Transforme seus livros didáticos em <strong>Resumos em Vídeo</strong>
+            </div>
+            <div class="nlm-center-core-orb">
+              <div class="orb-pulse">✨</div>
+              <div class="orb-title">Gemini</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="nlm-landing-bottom-bar">
+        <span class="nlm-google-label">Google</span>
+        <span class="nlm-terms-label">Privacidade e Termos</span>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,66 @@
+        <!-- ABA 4: Fontes & Apostilas -->
+        <section id="tab-fontes" class="tab-content">
+          <div class="sources-container">
+            <div class="sources-header">
+              <h2>Alimentar o Caderno Ativo</h2>
+              <p>Adicione PDFs, livros digitais, artigos da web ou aulas do YouTube para o NotebookLM processar.</p>
+            </div>
+
+            <div class="sources-grid">
+              <!-- Upload de Arquivo -->
+              <div class="source-card">
+                <div class="source-icon">📄</div>
+                <h3>Apostila ou Livro (PDF / TXT)</h3>
+                <p>Faça upload de materiais para serem lidos pelo NotebookLM.</p>
+                <div class="upload-dropzone" id="dropzone">
+                  <input type="file" id="file-upload-input" accept=".pdf,.txt,.md" style="display: none;">
+                  <button id="btn-trigger-upload" class="btn-pri">Escolher Arquivo</button>
+                  <span id="upload-status" class="status-hint">PDF, TXT ou Markdown até 200MB</span>
+                </div>
+              </div>
+
+              <!-- Link Web / YouTube -->
+              <div class="source-card">
+                <div class="source-icon">🔗</div>
+                <h3>Link da Web ou YouTube</h3>
+                <p>Cole a URL de um artigo, notícia ou vídeo explicativo.</p>
+                <div class="url-input-group">
+                  <input type="url" id="input-url-fonte" placeholder="https://youtube.com/watch?v=... ou site">
+                  <button id="btn-add-url-fonte" class="btn-pri">Adicionar Fonte</button>
+                </div>
+                <span id="url-status" class="status-hint">O NotebookLM extrai o conteúdo e as legendas automaticamente</span>
+              </div>
+            </div>
+
+            <!-- Lista de Fontes Ativas -->
+            <div class="artifacts-box" style="margin-bottom: 24px;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+                <h3 style="margin-bottom: 0;">📚 Fontes Processadas neste Caderno (<span id="fontes-count">0</span>)</h3>
+                <button id="btn-recarregar-fontes" class="btn-sec" style="padding: 4px 10px; font-size: 0.78rem;">
+                  🔄 Atualizar Fontes
+                </button>
+              </div>
+              <div id="fontes-list" class="artifacts-list">
+                <!-- Renderizado via JS -->
+              </div>
+            </div>
+
+            <!-- Artefatos Gerados -->
+            <div class="artifacts-box">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+                <h3 style="margin-bottom: 0;">⚡ Artefatos Gerados (Quizzes & Áudios)</h3>
+                <div style="display: flex; gap: 8px;">
+                  <button id="btn-gerar-quiz-fontes" class="btn-pri" style="padding: 4px 10px; font-size: 0.78rem;">
+                    ✨ Gerar Quiz
+                  </button>
+                  <button id="btn-gerar-audio-fontes" class="btn-sec" style="padding: 4px 10px; font-size: 0.78rem;">
+                    🎙️ Gerar Podcast
+                  </button>
+                </div>
+              </div>
+              <div id="artifacts-list" class="artifacts-list">
+                <!-- Renderizado via JS -->
+              </div>
+            </div>
+          </div>
+        </section>
